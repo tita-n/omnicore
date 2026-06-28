@@ -6,3 +6,7 @@ export { LivenessError } from './LivenessError.js';
 export { AgeEstimationError } from './AgeEstimationError.js';
 export { VerificationCancelledError } from './VerificationCancelledError.js';
 export { UnsupportedBrowserError } from './UnsupportedBrowserError.js';
+export { FaceTooSmallError } from './FaceTooSmallError.js';
+export { MultipleFacesError } from './MultipleFacesError.js';
+export { FaceOutsideFrameError } from './FaceOutsideFrameError.js';
+export { MediaPipeInitError } from './MediaPipeInitError.js';

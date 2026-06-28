@@ -9,10 +9,18 @@ export const defaultConfig: VerificationConfig = {
     captureIntervalMs: 200,
     maxFrames: 10,
     timeoutMs: 30000,
+    minFaceSize: 100,
+    detectionIntervalMs: 100,
+    maxFaces: 1,
   },
   faceDetection: {
     minConfidence: 0.7,
     inputSize: { width: 640, height: 480 },
+    minFaceSize: 100,
+    maxFaces: 1,
+    modelUrl: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
+    wasmPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
+    minSuppressionThreshold: 0.3,
   },
   quality: {
     minBrightness: 0.3,

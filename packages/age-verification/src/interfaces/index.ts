@@ -39,3 +39,8 @@ export {
   PipelineContext,
   PipelineConfig,
 } from './PipelineStep.js';
+
+export type {
+  FaceDetectionProvider,
+  FaceDetectionResult,
+} from './FaceDetectionProvider.js';

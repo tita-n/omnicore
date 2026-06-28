@@ -1,10 +1,12 @@
 import { VerificationStatus } from '../models/VerificationStatus.js';
 import { VerificationResult } from '../models/VerificationResult.js';
+import type { EventEmitter } from '../events/EventEmitter.js';
 
 export interface PipelineContext {
   sessionId: string;
   userId: string;
   config: import('../config/VerificationConfig.js').VerificationConfig;
+  events: EventEmitter;
   currentStatus: VerificationStatus;
   frames: import('../interfaces/CameraProvider.js').CaptureFrame[];
   faceDetections: import('../interfaces/FaceDetector.js').FaceDetection[];

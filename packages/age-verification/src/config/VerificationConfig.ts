@@ -6,12 +6,20 @@ export interface CameraConfig {
   captureIntervalMs: number;
   maxFrames: number;
   timeoutMs: number;
+  minFaceSize: number;
+  detectionIntervalMs: number;
+  maxFaces: number;
 }
 
 export interface FaceDetectionConfig {
   minConfidence: number;
   modelPath?: string;
   inputSize: { width: number; height: number };
+  minFaceSize: number;
+  maxFaces: number;
+  modelUrl: string;
+  wasmPath: string;
+  minSuppressionThreshold: number;
 }
 
 export interface QualityConfig {

@@ -13,11 +13,6 @@ export interface CaptureFrame {
   timestamp: number;
 }
 
-export interface MediaStreamConstraints {
-  video?: boolean | { width?: number; height?: number; facingMode?: 'user' | 'environment' };
-  audio?: boolean;
-}
-
 export interface CameraProvider {
   initialize(constraints?: MediaStreamConstraints): Promise<void>;
   startCapture(): Promise<void>;

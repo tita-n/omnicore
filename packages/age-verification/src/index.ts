@@ -1,5 +1,5 @@
 export { AgeVerificationSDK } from './core/SDK.js';
-export type { DTEOptions } from './core/types.js';
+export type { DTEOptions, AvmOptions } from './core/types.js';
 
 export { EventEmitter } from './events/EventEmitter.js';
 export type {
@@ -12,6 +12,15 @@ export type {
   VerificationCompleted,
   VerificationFailed,
   SignalEmitted,
+  CameraInitialized,
+  PermissionGranted,
+  PermissionDenied,
+  CameraStarted,
+  CameraStopped,
+  FaceDetected,
+  FaceLost,
+  MultipleFacesDetected,
+  FaceValidated,
 } from './events/EventTypes.js';
 
 export { VerificationPipeline } from './pipeline/VerificationPipeline.js';
@@ -46,6 +55,10 @@ export {
   AgeEstimationError,
   VerificationCancelledError,
   UnsupportedBrowserError,
+  FaceTooSmallError,
+  MultipleFacesError,
+  FaceOutsideFrameError,
+  MediaPipeInitError,
 } from './errors/index.js';
 
 export { defaultConfig, validateConfig, isConfigValid } from './config/index.js';
@@ -79,4 +92,22 @@ export type {
   DTEConnectorConfig,
   PipelineStep,
   PipelineContext,
+  FaceDetectionProvider,
+  FaceDetectionResult,
 } from './interfaces/index.js';
+
+export {
+  BrowserCameraProvider,
+  CameraManager,
+  MediaPipeFaceDetectionProvider,
+  CameraCaptureStep,
+  FaceDetectionStep,
+  validateFaces,
+  createDefaultValidationConfig,
+} from './services/index.js';
+export type {
+  CameraDeviceInfo,
+  FaceValidationResult,
+  FaceValidationError,
+  FaceValidationConfig,
+} from './services/index.js';

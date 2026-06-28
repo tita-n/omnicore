@@ -8,9 +8,17 @@ export function validateConfig(config: VerificationConfig): string[] {
   if (config.camera.captureIntervalMs < 50) errors.push('camera.captureIntervalMs must be at least 50ms');
   if (config.camera.maxFrames < 1) errors.push('camera.maxFrames must be at least 1');
   if (config.camera.timeoutMs < 1000) errors.push('camera.timeoutMs must be at least 1000ms');
+  if (config.camera.minFaceSize < 20) errors.push('camera.minFaceSize must be at least 20px');
+  if (config.camera.detectionIntervalMs < 30) errors.push('camera.detectionIntervalMs must be at least 30ms');
+  if (config.camera.maxFaces < 1) errors.push('camera.maxFaces must be at least 1');
 
   if (config.faceDetection.minConfidence < 0 || config.faceDetection.minConfidence > 1) {
     errors.push('faceDetection.minConfidence must be between 0 and 1');
+  }
+  if (config.faceDetection.minFaceSize < 20) errors.push('faceDetection.minFaceSize must be at least 20px');
+  if (config.faceDetection.maxFaces < 1) errors.push('faceDetection.maxFaces must be at least 1');
+  if (config.faceDetection.minSuppressionThreshold < 0 || config.faceDetection.minSuppressionThreshold > 1) {
+    errors.push('faceDetection.minSuppressionThreshold must be between 0 and 1');
   }
 
   if (config.quality.minimumOverall < 0 || config.quality.minimumOverall > 1) {

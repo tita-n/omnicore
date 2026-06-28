@@ -1,4 +1,4 @@
-import type { DTEOptions } from './types.js';
+import type { AvmOptions } from './types.js';
 import type { VerificationConfig } from '../config/VerificationConfig.js';
 import type { VerificationSession as VerificationSessionModel } from '../models/VerificationSession.js';
 import type { VerificationResult } from '../models/VerificationResult.js';
@@ -9,6 +9,8 @@ import { defaultConfig } from '../config/defaultConfig.js';
 import { isConfigValid } from '../config/configSchema.js';
 import { EventEmitter } from '../events/EventEmitter.js';
 import { VerificationPipeline } from '../pipeline/VerificationPipeline.js';
+import { CameraCaptureStep } from '../services/pipeline-steps/CameraCaptureStep.js';
+import { FaceDetectionStep } from '../services/pipeline-steps/FaceDetectionStep.js';
 
 export class AgeVerificationSDK {
   private config: VerificationConfig;
@@ -17,18 +19,26 @@ export class AgeVerificationSDK {
   private sessions: Map<string, VerificationSessionModel> = new Map();
   private results: Map<string, VerificationResult> = new Map();
 
-  constructor(dteOptions?: DTEOptions) {
-    this.config = { ...defaultConfig };
-
-    if (dteOptions?.dteEndpoint) {
-      this.config.dte.endpoint = dteOptions.dteEndpoint;
-    }
+  constructor(options?: AvmOptions) {
+    this.config = {
+      ...defaultConfig,
+      camera: options?.camera ? { ...defaultConfig.camera, ...options.camera } : defaultConfig.camera,
+      faceDetection: options?.faceDetection
+        ? { ...defaultConfig.faceDetection, ...options.faceDetection }
+        : defaultConfig.faceDetection,
+      dte: options?.dteEndpoint
+        ? { ...defaultConfig.dte, endpoint: options.dteEndpoint }
+        : defaultConfig.dte,
+    };
 
     if (!isConfigValid(this.config)) {
-      console.warn('Default configuration is invalid — this indicates a code defect');
+      console.warn('Configuration is invalid');
     }
 
     this.pipeline = new VerificationPipeline(this.config, this.events);
+
+    this.pipeline.registerStep(new CameraCaptureStep());
+    this.pipeline.registerStep(new FaceDetectionStep());
   }
 
   get events$(): EventEmitter {
@@ -44,7 +54,7 @@ export class AgeVerificationSDK {
     return session;
   }
 
-  async startVerification(sessionId: string, _userId: string): Promise<VerificationResult> {
+  async startVerification(sessionId: string, userId: string): Promise<VerificationResult> {
     const session = this.sessions.get(sessionId);
     if (!session) {
       throw new Error(`Session not found: ${sessionId}`);
@@ -53,7 +63,50 @@ export class AgeVerificationSDK {
     const updated = updateSessionStatus(session, VerificationStatus.PROCESSING);
     this.sessions.set(sessionId, updated);
 
-    return createEmptyResult(sessionId, _userId);
+    const initialResult = createEmptyResult(sessionId, userId);
+    const context = {
+      sessionId,
+      userId,
+      config: this.config,
+      currentStatus: VerificationStatus.PROCESSING,
+      events: this.events,
+      frames: [],
+      faceDetections: [],
+      qualityMetrics: null,
+      livenessResult: null,
+      ageEstimation: null,
+      confidenceFactors: null,
+      finalResult: initialResult,
+      error: null,
+    };
+
+    const finalContext = await this.pipeline.execute(context);
+
+    const result: VerificationResult = {
+      verificationId: `ver_${sessionId}`,
+      sessionId,
+      userId,
+      ageBand: initialResult.ageBand,
+      confidence: finalContext.faceDetections.length > 0 ? finalContext.faceDetections[0]!.confidence : 0,
+      qualityScore: 0,
+      livenessScore: 0,
+      verificationStatus: finalContext.currentStatus,
+      timestamp: Date.now(),
+      evidence: {
+        faceDetected: finalContext.faceDetections.length > 0,
+        qualityScore: 0,
+        livenessScore: 0,
+        faceBoundingBox: finalContext.faceDetections[0]?.boundingBox,
+        landmarks: finalContext.faceDetections[0]?.landmarks,
+        framesAnalyzed: finalContext.frames.length,
+        captureDurationMs: 0,
+      },
+      error: finalContext.error?.message,
+    };
+
+    this.results.set(sessionId, result);
+
+    return result;
   }
 
   cancelVerification(sessionId: string): void {
