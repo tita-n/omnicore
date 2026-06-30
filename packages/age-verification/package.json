@@ -21,6 +21,7 @@
   "scripts": {
     "build": "tsc",
     "test": "node --import tsx --test tests/**/*.test.ts",
+    "test-server": "cd test-server && npm install && npm run serve",
     "prepublishOnly": "npm run build && npm test"
   },
   "engines": { "node": ">=20" },

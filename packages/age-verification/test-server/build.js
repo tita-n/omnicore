@@ -1,0 +1,92 @@
+import * as esbuild from 'esbuild';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const dist = resolve(__dirname, 'dist');
+
+mkdirSync(dist, { recursive: true });
+
+await esbuild.build({
+  entryPoints: [resolve(__dirname, 'main.tsx')],
+  bundle: true,
+  outfile: resolve(dist, 'bundle.js'),
+  format: 'esm',
+  platform: 'browser',
+  target: 'es2022',
+  jsx: 'automatic',
+  jsxDev: false,
+  external: [],
+  loader: {
+    '.ts': 'ts',
+    '.tsx': 'tsx',
+  },
+  define: {
+    'process.env.NODE_ENV': '"production"',
+  },
+});
+
+// Write index.html with the bundle included
+const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AVM Milestone 2 — Test Server</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #111; color: #e0e0e0; font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace; font-size: 13px; }
+    #root { padding: 16px; max-width: 1400px; margin: 0 auto; }
+    h1 { font-size: 18px; margin-bottom: 16px; color: #fff; letter-spacing: -0.3px; }
+    .layout { display: flex; gap: 16px; flex-wrap: wrap; }
+    .video-section { flex: 0 0 auto; }
+    .video-section video { border: 1px solid #333; border-radius: 4px; display: block; background: #000; }
+    .video-section .controls { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .panel { flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 8px; }
+    .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 4px; padding: 12px; }
+    .card h2 { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .card .value { font-size: 28px; font-weight: 700; }
+    .card .value.ok { color: #4ade80; }
+    .card .value.fail { color: #f87171; }
+    .card .value.warn { color: #fbbf24; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .stats-grid label { color: #888; }
+    .stats-grid span { color: #e0e0e0; }
+    button { background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; padding: 8px 16px; cursor: pointer; font-family: inherit; font-size: 13px; transition: all 0.15s; }
+    button:hover { background: #333; border-color: #666; }
+    button:active { background: #444; }
+    button.danger { border-color: #f87171; color: #f87171; }
+    button.danger:hover { background: #3a1a1a; }
+    button.success { border-color: #4ade80; color: #4ade80; }
+    button.success:hover { background: #1a3a1a; }
+    .log { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 4px; padding: 8px; height: 300px; overflow-y: auto; font-size: 12px; line-height: 1.6; }
+    .log .entry { color: #0f0; }
+    .log .entry.warn { color: #fbbf24; }
+    .log .entry.error { color: #f87171; }
+    .log .entry.info { color: #60a5fa; }
+    .error-msg { color: #f87171; margin-top: 4px; }
+    canvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+    .video-wrapper { position: relative; display: inline-block; }
+    .status-bar { display: flex; gap: 16px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .status-dot.active { background: #4ade80; }
+    .status-dot.inactive { background: #666; }
+    .status-dot.error { background: #f87171; }
+    .test-checklist { margin-top: 8px; }
+    .test-checklist details { margin-bottom: 4px; }
+    .test-checklist summary { cursor: pointer; color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .test-checklist li { padding: 2px 0; font-size: 12px; }
+    .test-checklist li.done { color: #4ade80; }
+    .test-checklist li::marker { content: '\\25CB '; }
+    .test-checklist li.done::marker { content: '\\2713 '; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/bundle.js"></script>
+</body>
+</html>`;
+
+writeFileSync(resolve(dist, 'index.html'), html);
+console.log('Build complete: dist/index.html + dist/bundle.js');

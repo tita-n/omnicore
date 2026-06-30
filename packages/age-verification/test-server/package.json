@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "serve": "node build.js && node server.js"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@mediapipe/tasks-vision": "^0.10.18"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
